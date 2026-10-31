@@ -1,0 +1,336 @@
+{
+  "topology": {
+    "vpc": {
+      "id": "vpc-01",
+      "name": "chaosnet-prod-vpc",
+      "cidr": "10.0.0.0/16",
+      "availability_zones": [
+        {
+          "id": "az-a",
+          "name": "us-east-1a",
+          "subnets": [
+            {
+              "id": "subnet-pub-a",
+              "cidr": "10.0.1.0/24",
+              "az": "az-a",
+              "type": "PUBLIC"
+            },
+            {
+              "id": "subnet-priv-a",
+              "cidr": "10.0.2.0/24",
+              "az": "az-a",
+              "type": "PRIVATE"
+            }
+          ]
+        },
+        {
+          "id": "az-b",
+          "name": "us-east-1b",
+          "subnets": [
+            {
+              "id": "subnet-pub-b",
+              "cidr": "10.0.3.0/24",
+              "az": "az-b",
+              "type": "PUBLIC"
+            },
+            {
+              "id": "subnet-priv-b",
+              "cidr": "10.0.4.0/24",
+              "az": "az-b",
+              "type": "PRIVATE"
+            }
+          ]
+        }
+      ]
+    },
+    "nodes": [
+      {
+        "id": "igw-main",
+        "type": "INTERNET_GATEWAY",
+        "az": null,
+        "subnet": null,
+        "status": "UP",
+        "latency_ms": 1.0,
+        "capacity": 5000
+      },
+      {
+        "id": "lb-a",
+        "type": "LOAD_BALANCER",
+        "az": "az-a",
+        "subnet": "subnet-pub-a",
+        "status": "UP",
+        "latency_ms": 1.5,
+        "capacity": 2000
+      },
+      {
+        "id": "nat-a",
+        "type": "NAT_GATEWAY",
+        "az": "az-a",
+        "subnet": "subnet-pub-a",
+        "status": "UP",
+        "latency_ms": 1.0,
+        "capacity": 1000
+      },
+      {
+        "id": "router-a",
+        "type": "ROUTER",
+        "az": "az-a",
+        "subnet": "subnet-priv-a",
+        "status": "UP",
+        "latency_ms": 0.5,
+        "capacity": 5000
+      },
+      {
+        "id": "app-a1",
+        "type": "APP_INSTANCE",
+        "az": "az-a",
+        "subnet": "subnet-priv-a",
+        "status": "UP",
+        "latency_ms": 4.0,
+        "capacity": 250
+      },
+      {
+        "id": "app-a2",
+        "type": "APP_INSTANCE",
+        "az": "az-a",
+        "subnet": "subnet-priv-a",
+        "status": "UP",
+        "latency_ms": 4.5,
+        "capacity": 250
+      },
+      {
+        "id": "db-primary-a",
+        "type": "DATABASE",
+        "az": "az-a",
+        "subnet": "subnet-priv-a",
+        "status": "UP",
+        "latency_ms": 3.0,
+        "capacity": 800,
+        "db_role": "PRIMARY"
+      },
+      {
+        "id": "lb-b",
+        "type": "LOAD_BALANCER",
+        "az": "az-b",
+        "subnet": "subnet-pub-b",
+        "status": "UP",
+        "latency_ms": 1.5,
+        "capacity": 2000
+      },
+      {
+        "id": "nat-b",
+        "type": "NAT_GATEWAY",
+        "az": "az-b",
+        "subnet": "subnet-pub-b",
+        "status": "UP",
+        "latency_ms": 1.0,
+        "capacity": 1000
+      },
+      {
+        "id": "router-b",
+        "type": "ROUTER",
+        "az": "az-b",
+        "subnet": "subnet-priv-b",
+        "status": "UP",
+        "latency_ms": 0.5,
+        "capacity": 5000
+      },
+      {
+        "id": "app-b1",
+        "type": "APP_INSTANCE",
+        "az": "az-b",
+        "subnet": "subnet-priv-b",
+        "status": "UP",
+        "latency_ms": 4.0,
+        "capacity": 250
+      },
+      {
+        "id": "app-b2",
+        "type": "APP_INSTANCE",
+        "az": "az-b",
+        "subnet": "subnet-priv-b",
+        "status": "UP",
+        "latency_ms": 4.5,
+        "capacity": 250
+      },
+      {
+        "id": "db-replica-b",
+        "type": "DATABASE",
+        "az": "az-b",
+        "subnet": "subnet-priv-b",
+        "status": "UP",
+        "latency_ms": 3.0,
+        "capacity": 800,
+        "db_role": "REPLICA"
+      }
+    ],
+    "links": [
+      {
+        "source": "igw-main",
+        "target": "lb-a",
+        "latency": 1.0,
+        "bandwidth": 10000,
+        "status": "UP"
+      },
+      {
+        "source": "igw-main",
+        "target": "lb-b",
+        "latency": 1.2,
+        "bandwidth": 10000,
+        "status": "UP"
+      },
+      {
+        "source": "lb-a",
+        "target": "router-a",
+        "latency": 0.8,
+        "bandwidth": 5000,
+        "status": "UP"
+      },
+      {
+        "source": "lb-b",
+        "target": "router-b",
+        "latency": 0.8,
+        "bandwidth": 5000,
+        "status": "UP"
+      },
+      {
+        "source": "lb-a",
+        "target": "router-b",
+        "latency": 2.5,
+        "bandwidth": 2500,
+        "status": "UP"
+      },
+      {
+        "source": "lb-b",
+        "target": "router-a",
+        "latency": 2.5,
+        "bandwidth": 2500,
+        "status": "UP"
+      },
+      {
+        "source": "router-a",
+        "target": "nat-a",
+        "latency": 0.8,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "router-b",
+        "target": "nat-b",
+        "latency": 0.8,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "router-a",
+        "target": "router-b",
+        "latency": 2.0,
+        "bandwidth": 5000,
+        "status": "UP"
+      },
+      {
+        "source": "router-a",
+        "target": "app-a1",
+        "latency": 0.6,
+        "bandwidth": 1000,
+        "status": "UP"
+      },
+      {
+        "source": "router-a",
+        "target": "app-a2",
+        "latency": 0.6,
+        "bandwidth": 1000,
+        "status": "UP"
+      },
+      {
+        "source": "router-b",
+        "target": "app-b1",
+        "latency": 0.6,
+        "bandwidth": 1000,
+        "status": "UP"
+      },
+      {
+        "source": "router-b",
+        "target": "app-b2",
+        "latency": 0.6,
+        "bandwidth": 1000,
+        "status": "UP"
+      },
+      {
+        "source": "app-a1",
+        "target": "db-primary-a",
+        "latency": 1.0,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-a2",
+        "target": "db-primary-a",
+        "latency": 1.0,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-b1",
+        "target": "db-primary-a",
+        "latency": 3.2,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-b2",
+        "target": "db-primary-a",
+        "latency": 3.2,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-a1",
+        "target": "db-replica-b",
+        "latency": 3.2,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-a2",
+        "target": "db-replica-b",
+        "latency": 3.2,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-b1",
+        "target": "db-replica-b",
+        "latency": 1.0,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "app-b2",
+        "target": "db-replica-b",
+        "latency": 1.0,
+        "bandwidth": 2000,
+        "status": "UP"
+      },
+      {
+        "source": "db-primary-a",
+        "target": "db-replica-b",
+        "latency": 2.5,
+        "bandwidth": 2000,
+        "status": "UP"
+      }
+    ]
+  },
+  "chaos_script": [
+    {
+      "tick": 50,
+      "event_type": "kill_az",
+      "target": "az-a"
+    },
+    {
+      "tick": 120,
+      "event_type": "recover",
+      "target": "az-a"
+    }
+  ]
+}
